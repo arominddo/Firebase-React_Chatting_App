@@ -1,5 +1,10 @@
-# 상위 디렉토리 구성
+# 프로젝트 목표
+- vite 프로젝트 생성
+- Firebase 역량 강화
+- 소캣 통신 역량 강화
+- redux 역량 강화
 
+# 상위 디렉토리 구성
 - root : Firebase-React_Chatting_App
 - root/firebase_react_chatting_app/*
   - docker-compose.yml
