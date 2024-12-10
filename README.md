@@ -1,8 +1,23 @@
-# React + Vite
+# 상위 디렉토리 구성
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- root : Firebase-React_Chatting_App
+- root/firebase_react_chatting_app/*
+  - docker-compose.yml
+  - version: "3.9"
+    services:
+      web:
+        tty: true
+        privileged: true
+        image: node:20.11.1
+        volumes:
+          - ../share:/share
+          - ../web:/home/web
+          - /home/web/node_modules
+        environment:
+          - TZ=Asia/Seoul
+          - WDS_SOCKET_PORT=9991
+        ports:
+          - "9992:80"
+          - "9991:5173"
+- root/web : 레포지토리 복사
+- root/share : 기타 공유 폴더
