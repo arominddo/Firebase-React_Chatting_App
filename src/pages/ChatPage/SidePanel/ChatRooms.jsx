@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { FaPlus, FaRegSmileWink } from "react-icons/fa";
-import {ref as dbRef, push, update} from "firebase/database"
+import {child, ref as dbRef, onChildAdded, push, update} from "firebase/database"
 import { db } from "../../../firebase"
 import { useDispatch, useSelector } from "react-redux";
 
@@ -17,7 +17,12 @@ const ChatRooms = () => {
     const [activeChatRoomId, setActiveChatRoomId] = useState("");
 
     const { currentUser } = useSelector((state) => state.user);
+    
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        addChatRoomsListeners();
+    }, [])
 
     const handleSubmit = async () => {
 
@@ -44,8 +49,32 @@ const ChatRooms = () => {
         }
     }
 
+    const addChatRoomsListeners = () => {
+        let chatRoomsArray = [];
+        
+        onChildAdded(chatRoomsRef, (dataSnapshot) => {
+            chatRoomsArray.push(dataSnapshot.val());
+            setChatRooms(chatRoomsArray);
+        })
+    }
+
     const isFormValid = (name, description) => {
         return name && description;
+    }
+
+    const renderChatRooms = () => {
+        return (
+            chatRooms.length > 0 &&
+            chatRooms.map(room => {
+                return (
+                    <li
+                        key={room.id}
+                    >
+                        # {room.name}        
+                    </li>   
+                )
+            })
+        ) 
     }
 
     return (
@@ -65,6 +94,10 @@ const ChatRooms = () => {
                     onClick={() => setShow(!show)}
                 />
             </div>
+
+            <ul style={{listStyleType : "none", padding : 0}}>
+                {renderChatRooms()}
+            </ul>
 
             <Modal show={show} onHide={() => setShow(false)}>
                 <Modal.Header closeButton>
