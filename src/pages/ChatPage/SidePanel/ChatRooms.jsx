@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { FaPlus, FaRegSmileWink } from "react-icons/fa";
-import {ref as dbRef} from "firebase/database"
+import {ref as dbRef, push, update} from "firebase/database"
 import { db } from "../../../firebase"
 import { useDispatch, useSelector } from "react-redux";
 
@@ -19,8 +19,33 @@ const ChatRooms = () => {
     const { currentUser } = useSelector((state) => state.user);
     const dispatch = useDispatch();
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
 
+        if(isFormValid(name, description)){
+            
+            const newChatRoom = {
+                id : push(chatRoomsRef).key,
+                name : name,
+                description : description,
+                createdBy : {
+                    name : currentUser.displayName,
+                    image : currentUser.photoURL,
+                }
+            }
+
+            try{
+                await update(child(chatRoomsRef, newChatRoom.id), newChatRoom);
+                setName("");
+                setDescription("");
+                setShow(false);
+            } catch(error){
+                alert(error);
+            }
+        }
+    }
+
+    const isFormValid = (name, description) => {
+        return name && description;
     }
 
     return (
@@ -46,7 +71,7 @@ const ChatRooms = () => {
                     <Modal.Title>채팅 방 생성하기</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form onSubmit={handleSubmit}>
+                    <Form>
                         <Form.Group>
                             <Form.Label>방 이름</Form.Label>
                             <Form.Control
@@ -69,7 +94,7 @@ const ChatRooms = () => {
                     <Button variant="secondary" onClick={() => setShow(false)}>
                         취소
                     </Button>
-                    <Button variant="primary" onClick={() => {}}>
+                    <Button variant="primary" onClick={handleSubmit}>
                         생성
                     </Button>
                 </Modal.Footer>

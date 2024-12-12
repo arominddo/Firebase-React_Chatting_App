@@ -10,7 +10,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [errorFromSubmit, setErrorFromSubmit] = useState("");
 
-  const {register, watch, formState : {errors}, handleSubmit} = useForm();
+  const {register, formState : {errors}, handleSubmit} = useForm();
 
   const onSubmit = async(data) => {
       try{

@@ -16,9 +16,6 @@ const UserPanel = () => {
 
     const auth = getAuth(app);
 
-    console.log("FFFFFFF : ", auth)
-
-
     const inputOpenImageRef = useRef(null);
 
     const handleLogout = () => {

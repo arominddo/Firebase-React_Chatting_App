@@ -1,30 +1,27 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
-import {
-    createUserWithEmailAndPassword,
-    getAuth,
-    updateProfile,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, updateProfile, } from "firebase/auth";
 import { ref, set } from "firebase/database";
 import app, { db } from "../../firebase";
 import md5 from "md5";
 
 const RegisterPage = () => {
     const auth = getAuth(app);
+    
     const [loading, setLoading] = useState(false);
     const [errorFromSubmit, setErrorFromSubmit] = useState("");
 
-    const {
-        register,
-        watch,
-        formState: { errors },
-        handleSubmit,
-    } = useForm();
+    const {register, watch, formState: { errors }, handleSubmit} = useForm();
+
+    const password = useRef();
+    password.current = watch("password");
 
     const onSubmit = async (data) => {
         try {
+            
             setLoading(true);
+
             const createdUser = await createUserWithEmailAndPassword(
                 auth,
                 data.email,
@@ -92,12 +89,18 @@ const RegisterPage = () => {
                     id="password"
                     {...register("password", { required: true, minLength: 6 })}
                 />
-                {errors.password && errors.password.type === "required" && (
-                    <p>This password field is required</p>
-                )}
-                {errors.password && errors.password.type === "minLength" && (
-                    <p>Password must have at least 6 characters</p>
-                )}
+                {errors.password && errors.password.type === "required" && (<p>This password field is required</p>)}
+                {errors.password && errors.password.type === "minLength" && (<p>Password must have at least 6 characters</p>)}
+
+                <label htmlFor="password">Password Confirm</label>
+                <input
+                    name="password_confirm"
+                    type="password"
+                    id="password_confirm"
+                    {...register("password_confirm", { required: true, validate: (value) => value === password.current })}
+                />
+                {errors.password_confirm && errors.password_confirm.type === "required" && (<p>This password field is required</p>)}
+                {errors.password_confirm && errors.password_confirm.type === "validate" && (<p>Password does not match</p>)}
 
                 {errorFromSubmit && <p>{errorFromSubmit}</p>}
 
