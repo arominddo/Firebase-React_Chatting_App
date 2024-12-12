@@ -1,8 +1,47 @@
-import React from 'react'
+import { Col, FormControl, Image, InputGroup, Row } from "react-bootstrap";
+import { AiOutlineSearch } from "react-icons/ai";
+import { useSelector } from "react-redux";
 
 function MessageHeader() {
+  
+  const {currentChatRoom} = useSelector(state => state.chatRoom);
+
   return (
-    <div>MessageHeader</div>
+    <div
+      style={{
+        width : "100%",
+        border : "0.2rem solid #ececec",
+        borderRadius : "4px",
+        height : "190px",
+        padding : "1rem",
+        marginBottom : "1rem",
+      }}
+    >
+      <Row>
+        <Col>
+        </Col>
+        
+        <Col>
+        <InputGroup>
+          <InputGroup.Text>
+            <AiOutlineSearch />
+          </InputGroup.Text>
+          <FormControl
+            onChange={() => {}}
+            placeholder="Search Messages"
+          />
+        </InputGroup>
+        </Col>
+      </Row>
+      <div style={{display : "flex", justifyContent : "flex-end"}}>
+        <Image
+          roundedCircle
+          src={currentChatRoom?.createdBy.image}
+          style={{width : "30px", height : "30px", marginRight : 7}}
+        />{" "}
+        <p>{currentChatRoom?.createdBy.name}</p>
+      </div>
+    </div>
   )
 }
 

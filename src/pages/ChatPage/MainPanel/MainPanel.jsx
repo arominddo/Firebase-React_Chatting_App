@@ -4,7 +4,7 @@ import MessageForm from "./MessageForm"
 function MainPanel() {
 
   return (
-    <div>
+    <div style={{ padding : "2rem 2rem 0 2rem" }}>
       <MessageHeader />
       <div
         style={{
