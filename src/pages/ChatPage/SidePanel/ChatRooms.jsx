@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { FaPlus, FaRegSmileWink } from "react-icons/fa";
-import {child, ref as dbRef, onChildAdded, push, update} from "firebase/database"
+import {child, ref as dbRef, off, onChildAdded, push, update} from "firebase/database"
 import { db } from "../../../firebase"
 import { useDispatch, useSelector } from "react-redux";
+import { setCurrentChatRoom } from "../../../store/chatRoomSlice";
 
 const ChatRooms = () => {
     const [show, setShow] = useState(false);
@@ -13,7 +14,7 @@ const ChatRooms = () => {
     const chatRoomsRef = dbRef(db, "chatRooms");
 
     const [chatRooms, setChatRooms] = useState([]);
-    const [firstLoad, setFirstLoad] = useState(false);
+    const [firstLoad, setFirstLoad] = useState(true);
     const [activeChatRoomId, setActiveChatRoomId] = useState("");
 
     const { currentUser } = useSelector((state) => state.user);
@@ -57,12 +58,29 @@ const ChatRooms = () => {
         
         onChildAdded(chatRoomsRef, (dataSnapshot) => {
             chatRoomsArray.push(dataSnapshot.val());
-            setChatRooms(chatRoomsArray);
+            const newChatRooms = [...chatRoomsArray];
+            setChatRooms(newChatRooms);
+
+            setFirstChatRoom(newChatRooms);
         })
+    }
+
+    const setFirstChatRoom = (chatRooms) => {
+        const firstChatRoom = chatRooms[0];
+        if(firstLoad && chatRooms.length > 0){
+            dispatch(setCurrentChatRoom(firstChatRoom));
+            setActiveChatRoomId(firstChatRoom.id);
+        }
+        setFirstLoad(false);
     }
 
     const isFormValid = (name, description) => {
         return name && description;
+    }
+
+    const changeChatRoom = (room) => {
+        dispatch(setCurrentChatRoom(room));
+        setActiveChatRoomId(room.id);
     }
 
     const renderChatRooms = () => {
@@ -72,6 +90,11 @@ const ChatRooms = () => {
                 return (
                     <li
                         key={room.id}
+                        onClick={() => changeChatRoom(room)}
+                        style={{
+                            backgroundColor : activeChatRoomId === room.id ? "#ffffff45" : "",
+                            cursor : "pointer",
+                        }}
                     >
                         # {room.name}        
                     </li>   
