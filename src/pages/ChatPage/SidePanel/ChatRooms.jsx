@@ -22,6 +22,9 @@ const ChatRooms = () => {
 
     useEffect(() => {
         addChatRoomsListeners();
+        return () => {
+            off(chatRoomsRef);
+        }
     }, [])
 
     const handleSubmit = async () => {
