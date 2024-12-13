@@ -12,6 +12,9 @@ function MainPanel() {
     
     const [messages, setMessages] = useState([]);
     const [messagesLoading, setMessagesLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const [searchLoading, setSearchLoading] = useState(false);
 
     const {currentUser} = useSelector(state => state.user);
     const {currentChatRoom} = useSelector(state => state.chatRoom);
@@ -28,6 +31,29 @@ function MainPanel() {
         }
 
     }, [currentChatRoom.id])
+
+    const handleSearchChange = (event) => {
+        setSearchTerm(event.target.value);
+        setSearchLoading(true);
+        
+        handleSearchMessage(event.target.value)
+    }
+
+    const handleSearchMessage = (searchTerm) => {
+        const chatRoomMessages = [...messages];
+        const regex = new RegExp(searchTerm, "gi");
+        const searchResults = chatRoomMessages.reduce((acc, message) => {
+            if(
+                (message.content && message.content.match(regex)) ||
+                message.user.name.match(regex)
+            ){
+                acc.push(message);
+            }
+            return acc;
+        }, []);
+        setSearchResults(searchResults);
+        setSearchLoading(false);
+    }
 
     const addMessagesListener = (chatRoomId) => {
         let messagesArray = [];
@@ -58,7 +84,7 @@ function MainPanel() {
 
     return (
         <div style={{ padding: "2rem 2rem 0 2rem" }}>
-            <MessageHeader />
+            <MessageHeader handleSearchChange={handleSearchChange} />
             <div
                 style={{
                     width: "100%",
@@ -70,7 +96,8 @@ function MainPanel() {
                     overflowY: "auto",
                 }}
             >
-                {renderMessages(messages)}
+                {searchLoading && (<div>Loading...</div>)}
+                { searchTerm ? renderMessages(searchResults) : renderMessages(messages)}
             </div>
 
             <MessageForm />
