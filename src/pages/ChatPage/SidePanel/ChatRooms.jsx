@@ -83,7 +83,7 @@ const ChatRooms = () => {
         dispatch(setPrivateChatRoom(false));
         setActiveChatRoomId(room.id);
     }
-
+    
     const renderChatRooms = () => {
         return (
             chatRooms.length > 0 &&

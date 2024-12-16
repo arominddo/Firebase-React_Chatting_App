@@ -58,6 +58,8 @@ function MainPanel() {
     const addMessagesListener = (chatRoomId) => {
         let messagesArray = [];
 
+        setMessages([]);
+
         onChildAdded(child(messagesRef, chatRoomId), DataSnapshot => {
             messagesArray.push(DataSnapshot.val());
             const newMessageArray = [...messagesArray];
