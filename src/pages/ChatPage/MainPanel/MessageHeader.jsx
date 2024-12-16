@@ -16,6 +16,9 @@ function MessageHeader({ handleSearchChange }) {
 
     const usersRef = dbRef(db, "users");
 
+    const {userPosts} = useSelector(state => state.chatRoom);
+    
+
     useEffect(() => {
         if(currentChatRoom?.id && currentUser?.uid){
             addFavoriteListener(currentChatRoom.id, currentUser.uid);
@@ -52,6 +55,26 @@ function MessageHeader({ handleSearchChange }) {
         }
     }
 
+    const renderUserPosts = (userPosts) => {
+        return Object.entries(userPosts)
+        .sort((a, b) => b[1].count - a[1].count)
+        .map(([key, val], i) => (
+            <div key={i} style={{display : "flex"}}>
+                <Image
+                style={{width : 45, height : 45, marginRight : 10}}
+                roundedCircle
+                src={val.image}
+                alt={key}
+                />
+                <div>
+                    <h6>{key}</h6>
+                    <p>
+                        {val.count} 개
+                    </p>
+                </div>
+            </div>
+        ))
+    }
 
     return (
         <div
@@ -136,7 +159,7 @@ function MessageHeader({ handleSearchChange }) {
                             <Accordion.Header>Posts Count</Accordion.Header>
                             <Accordion.Collapse eventKey="1">
                                 <Accordion.Body>
-                                    {currentChatRoom?.description}
+                                    {userPosts && renderUserPosts(userPosts)}
                                 </Accordion.Body>
                             </Accordion.Collapse>
                         </Accordion.Item>
