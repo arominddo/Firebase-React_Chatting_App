@@ -1,7 +1,7 @@
 import MessageHeader from "./MessageHeader";
 import MessageForm from "./MessageForm";
 import { useEffect, useState } from "react";
-import { child, onChildAdded, ref as dbRef, off } from "firebase/database";
+import { child, onChildAdded, ref as dbRef, off, onChildRemoved } from "firebase/database";
 import { db } from "../../../firebase";
 import { useDispatch, useSelector } from "react-redux";
 import Message from "./Message"
@@ -9,14 +9,15 @@ import { setUserPosts } from "../../../store/chatRoomSlice";
 
 function MainPanel() {
 
-    const messagesRef = dbRef(db, "messages")
+    const messagesRef = dbRef(db, "messages");
+    const typeingRef = dbRef(db, "typing");
     
     const [messages, setMessages] = useState([]);
     const [messagesLoading, setMessagesLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false);
-
+    const [typingUsers, setTypingUsers] = useState([]);
     const {currentUser} = useSelector(state => state.user);
     const {currentChatRoom} = useSelector(state => state.chatRoom);
     const dispatch = useDispatch();
@@ -25,6 +26,7 @@ function MainPanel() {
 
         if(currentChatRoom.id){
             addMessagesListener(currentChatRoom.id);
+            addTypingListeners(currentChatRoom.id);
         }
 
         return () => {
@@ -32,6 +34,29 @@ function MainPanel() {
         }
 
     }, [currentChatRoom.id])
+
+    const addTypingListeners = (chatRoomId) => {
+        let typingUsers = [];
+
+        onChildAdded(child(typeingRef, chatRoomId), DataSnapshot => {
+            if(DataSnapshot.key !== currentUser.uid){
+                typingUsers = typingUsers.concat({
+                    id : DataSnapshot.key,
+                    name : DataSnapshot.val()
+                });
+                setTypingUsers(typingUsers);
+            }
+        })
+
+        onChildRemoved(child(typeingRef, chatRoomId), DataSnapshot => {
+            const index = typingUsers.findIndex(user => user.id === DataSnapshot.key);
+            if(index !== -1){
+                typingUsers = typingUsers.filter(user => user.id !== DataSnapshot.key);
+                setTypingUsers(typingUsers)
+            }
+
+        })
+    }
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
@@ -102,6 +127,17 @@ function MainPanel() {
         )
     }
 
+    const renderTypingUsers = (typingUsers) => {
+        return (
+            typingUsers.length > 0 &&
+            typingUsers.map(user => (
+                <span key={user.name.userUid}>
+                    {user.name.userUid}님이 채팅을 입력하고 있습니다...
+                </span>
+            ))
+        )
+    }
+
     return (
         <div style={{ padding: "2rem 2rem 0 2rem" }}>
             <MessageHeader handleSearchChange={handleSearchChange} />
@@ -118,6 +154,7 @@ function MainPanel() {
             >
                 {searchLoading && (<div>Loading...</div>)}
                 { searchTerm ? renderMessages(searchResults) : renderMessages(messages)}
+                {renderTypingUsers(typingUsers)}
             </div>
 
             <MessageForm />

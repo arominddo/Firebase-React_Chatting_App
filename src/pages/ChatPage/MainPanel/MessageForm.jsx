@@ -1,4 +1,4 @@
-import { push, ref as dbRef, set, child, serverTimestamp, } from "firebase/database";
+import { push, ref as dbRef, set, child, serverTimestamp, remove, } from "firebase/database";
 import { useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { db, storage } from "../../../firebase";
@@ -123,8 +123,21 @@ function MessageForm() {
         );
     }
 
+    const handleChange = (event) => {
+        setContent(event.target.value);
+
+        if(event.target.value){
+            set(dbRef(db, `typing/${currentChatRoom.id}/${currentUser.uid}`), {
+                userUid : currentUser.displayName
+            })
+        }
+        else {
+            remove(dbRef(db, `typing/${currentChatRoom.id}/${currentUser.uid}`));
+        }
+    }
+
     return (
-        <div>
+        <div>m
             <form onSubmit={handleSubmit}>
                 <textarea
                     style={{
@@ -134,7 +147,7 @@ function MessageForm() {
                         borderRadius: 4,
                     }}
                     value={content}
-                    onChange={(e) => setContent(e.target.value)}
+                    onChange={handleChange}
                 />
                 {
                     !(percentage === 0 || percentage === 100) &&

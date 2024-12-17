@@ -5,12 +5,16 @@ import { createUserWithEmailAndPassword, getAuth, updateProfile, } from "firebas
 import { ref, set } from "firebase/database";
 import app, { db } from "../../firebase";
 import md5 from "md5";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../store/userSlice";
 
 const RegisterPage = () => {
     const auth = getAuth(app);
     
     const [loading, setLoading] = useState(false);
     const [errorFromSubmit, setErrorFromSubmit] = useState("");
+
+    const dispatch = useDispatch();
 
     const {register, watch, formState: { errors }, handleSubmit} = useForm();
 
@@ -34,6 +38,14 @@ const RegisterPage = () => {
                     createdUser.user.email
                 )}?d=identicon`,
             });
+
+            const userData = {
+                uid : createdUser.user.uid,
+                displayName : createdUser.user.displayName,
+                photoURL : createdUser.user.photoURL,
+            }
+
+            dispatch(setUser(userData));
 
             set(ref(db, `users/${createdUser.user.uid}`), {
                 name: createdUser.user.displayName,
