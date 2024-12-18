@@ -137,7 +137,7 @@ function MessageForm() {
     }
 
     return (
-        <div>m
+        <div>
             <form onSubmit={handleSubmit}>
                 <textarea
                     style={{

@@ -1,11 +1,12 @@
 import MessageHeader from "./MessageHeader";
 import MessageForm from "./MessageForm";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { child, onChildAdded, ref as dbRef, off, onChildRemoved } from "firebase/database";
 import { db } from "../../../firebase";
 import { useDispatch, useSelector } from "react-redux";
 import Message from "./Message"
 import { setUserPosts } from "../../../store/chatRoomSlice";
+import Skeleton from "../../../components/Skeleton";
 
 function MainPanel() {
 
@@ -16,11 +17,18 @@ function MainPanel() {
     const [messagesLoading, setMessagesLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
-    const [searchLoading, setSearchLoading] = useState(false);
+    const [searchLoading, setSearchLoading] = useState(true);
     const [typingUsers, setTypingUsers] = useState([]);
     const {currentUser} = useSelector(state => state.user);
     const {currentChatRoom} = useSelector(state => state.chatRoom);
+    
+    const messageEndRef = useRef(null);
+
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        messageEndRef.current.scrollIntoView({behavior : "smooth"});
+    })
 
     useEffect(() => {
 
@@ -138,6 +146,17 @@ function MainPanel() {
         )
     }
 
+    const renderMessageSkeleton = (loading) => {
+        return (
+            loading &&
+            <>
+            {[...Array(10)].map((_, i) => (
+                <Skeleton key={i} />
+            ))}
+            </>
+        )
+    }
+
     return (
         <div style={{ padding: "2rem 2rem 0 2rem" }}>
             <MessageHeader handleSearchChange={handleSearchChange} />
@@ -152,9 +171,11 @@ function MainPanel() {
                     overflowY: "auto",
                 }}
             >
+                {renderMessageSkeleton(messagesLoading)}
                 {searchLoading && (<div>Loading...</div>)}
                 { searchTerm ? renderMessages(searchResults) : renderMessages(messages)}
                 {renderTypingUsers(typingUsers)}
+                <div ref={messageEndRef} />
             </div>
 
             <MessageForm />
